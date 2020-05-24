@@ -32,6 +32,7 @@
       "packages/plugins/c-sharp/*",
       "packages/plugins/typescript/*",
       "packages/plugins/other/*",
+      "packages/plugins/perl/*",
       "packages/presets/*",
       "website",
       "website/live-demo"
