@@ -83,7 +83,8 @@ describe('My Plugin', () => {
       {
         packageName: 'GrapghQL::Client::TestPackage',
         scalars: {
-          ID: 'Str',
+          ID: 'Int|Str',
+          Int: 'Int',
           String: 'Str',
           Date: 'DateTime',
         },

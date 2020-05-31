@@ -16,7 +16,7 @@ export interface PerlPluginRawConfig extends RawConfig {
    *       packageName: My::Package::Name
    * ```
    */
-  packageName?: string;
+  packageName: string;
   /**
    * @name scalars
    * @type string
