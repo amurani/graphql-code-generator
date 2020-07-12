@@ -288,7 +288,12 @@ sub send {
 
     unless ( $response->is_success ) {
         my $message = $response->message || "No error messages";
-        die sprintf("%s request failed due to: %s", __PACKAGE__, $message);
+        die sprintf(
+            "%s request error \nStatus: %s \nRequest failed due to:\n\t%s",
+            __PACKAGE__,
+            $response->code,
+            $response->message || "No error messages",
+        );
     }
 
     my $content = $response->decoded_content;
