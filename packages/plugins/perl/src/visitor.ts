@@ -241,12 +241,9 @@ ${operations}
 package ${this.config.packageName}::Client;
 
 use Moose;
-
 use LWP::UserAgent;
 use HTTP::Request ();
 use JSON::MaybeXS qw(encode_json decode_json);
-
-use Data::Printer;
 
 has 'url' => (
     is => 'ro',
