@@ -1,0 +1,15 @@
+query findUser($userId: ID!) {
+  user(id: $userId) {
+    ...UserFields
+  }
+}
+
+mutation createUser($username: String, $email: String, $role: Role) {
+  createUser(input: { username: $username, email: $email, role: $role })
+}
+
+fragment UserFields on User {
+  id
+  username
+  role
+}

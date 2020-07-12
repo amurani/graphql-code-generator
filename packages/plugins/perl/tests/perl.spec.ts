@@ -1,82 +1,21 @@
+import '@graphql-codegen/testing';
 import { plugin } from '../src';
 import { buildSchema, parse } from 'graphql';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 const OUTPUT_FILE = 'GrapghQL/Client/TestPackage.pm';
 
-describe('My Plugin', () => {
-  const schema = buildSchema(/* GraphQL */ `
-    scalar Date
-    scalar ID
+describe('Perl Plugin', () => {
+  const typesSchema = readFileSync(join(__dirname, 'types-schema.graphql'), 'utf8');
+  const operationsSchema = readFileSync(join(__dirname, 'operations-schema.graphql'), 'utf8');
 
-    schema {
-      query: Query
-    }
-
-    type Query {
-      me: User!
-      user(id: ID!): User
-      allUsers: [User]
-      search(term: String!): [SearchResult!]!
-      myChats: [Chat!]!
-    }
-
-    enum Role {
-      USER
-      ADMIN
-    }
-
-    interface Node {
-      id: ID!
-    }
-
-    union SearchResult = User | Chat | ChatMessage
-
-    input UserInput {
-      username: String!
-      email: String!
-      role: Role!
-    }
-
-    type User implements Node {
-      id: ID!
-      username: String!
-      email: String!
-      role: Role!
-    }
-
-    type Chat implements Node {
-      id: ID!
-      users: [User!]!
-      messages: [ChatMessage!]!
-    }
-
-    type ChatMessage implements Node {
-      id: ID!
-      content: String!
-      time: Date!
-      user: User!
-    }
-  `);
+  const schema = buildSchema(typesSchema);
   const ast = {
-    document: parse(/* GraphQL */ `
-      query findUser($userId: ID!) {
-        user(id: $userId) {
-          ...UserFields
-        }
-      }
-
-      mutation createUser($username: String, $email: String, $role: Role) {
-        createUser(input: { username: $username, email: $email, role: $role })
-      }
-
-      fragment UserFields on User {
-        id
-        username
-        role
-      }
-    `),
+    document: parse(operationsSchema),
   };
-  it('Should greet', async () => {
+
+  it('should generate perl types and operations okay', async () => {
     const result = await plugin(
       schema,
       [ast],
@@ -93,14 +32,92 @@ describe('My Plugin', () => {
         outputFile: OUTPUT_FILE,
       }
     );
+
+    console.log(result);
     expect(result).not.toBeNull();
+    // types are generated okay
+    expect(result).toBeSimilarStringTo(`
+      package GrapghQL::Client::TestPackage::Types::User;
 
-    //     expect(result).toBe(`
-    // pacage GrapghQl::Client::TestPackage;
+      use Moose;
+      use Moose::Util::TypeConstraints;
+      with 'GrapghQL::Client::TestPackage::Types::Roles';
 
-    // use Moose;
+      extends 'GrapghQL::Client::TestPackage::Types::Node';
 
-    // 1;
-    // `);
+      has 'id' => (
+          is => 'ro',
+          isa => 'Int|Str',
+          required => 1
+      );
+
+      has 'username' => (
+          is => 'ro',
+          isa => 'Str',
+          required => 1
+      );
+
+      has 'email' => (
+          is => 'ro',
+          isa => 'Str',
+          required => 1
+      );
+
+      has 'role' => (
+          is => 'ro',
+          isa => 'GrapghQL::Client::TestPackage::Types::Role',
+          required => 1
+      );
+
+
+      no Moose;
+      no Moose::Util::TypeConstraints;
+
+      1;`);
+
+    // queries are generated okay
+    expect(result).toBeSimilarStringTo(`
+      package GrapghQL::Client::TestPackage::Types::Query;
+
+      use Moose;
+      use Moose::Util::TypeConstraints;
+      with 'GrapghQL::Client::TestPackage::Types::Roles';
+
+
+      has 'me' => (
+          is => 'ro',
+          isa => 'GrapghQL::Client::TestPackage::Types::User',
+          required => 1
+      );
+
+      has 'user' => (
+          is => 'ro',
+          isa => 'GrapghQL::Client::TestPackage::Types::User',
+          required => 0
+      );
+
+      has 'allUsers' => (
+          is => 'ro',
+          isa => 'ArrayRef[GrapghQL::Client::TestPackage::Types::User]',
+          required => 0
+      );
+
+      has 'search' => (
+          is => 'ro',
+          isa => 'ArrayRef[GrapghQL::Client::TestPackage::Types::SearchResult]',
+          required => 1
+      );
+
+      has 'myChats' => (
+          is => 'ro',
+          isa => 'ArrayRef[GrapghQL::Client::TestPackage::Types::Chat]',
+          required => 1
+      );
+
+
+      no Moose;
+      no Moose::Util::TypeConstraints;
+
+      1;`);
   });
 });
