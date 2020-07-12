@@ -119,8 +119,7 @@ extends ${parents.map(parent => `'${parent}'`).join(', ')};`;
   }
 
   buildTypePackage({ name, extensions, attributes, builders }) {
-    return `
-package ${this.config.packageName}::Types::${name};
+    return `package ${this.config.packageName}::Types::${name};
 
 use Moose;
 ${attributes ? 'use Moose::Util::TypeConstraints;' : ''}
@@ -150,8 +149,7 @@ has '${name}' => (
   }
 
   buildPluginPackage = (content: string, packageName?: string) => {
-    return `
-package ${packageName || this.config.packageName};
+    return `package ${packageName || this.config.packageName};
 
 use Moose;
 use Moose::Util::TypeConstraints;
@@ -216,8 +214,8 @@ ${operationProps.query.replace(/\$/g, '\\$')}
   }
 
   wrapWithCLient(basicTypes: string, types: string, operations: string) {
-    return `
-${basicTypes}
+    return `${basicTypes}
+
 package ${this.config.packageName}::Types::Roles;
 
 use Moose::Role;
