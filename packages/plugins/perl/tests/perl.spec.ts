@@ -33,7 +33,6 @@ describe('Perl Plugin', () => {
       }
     );
 
-    console.log(result);
     expect(result).not.toBeNull();
     // types are generated okay
     expect(result).toBeSimilarStringTo(`
