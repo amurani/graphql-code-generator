@@ -288,8 +288,9 @@ sub send {
     my $user_agent = LWP::UserAgent->new();
     my $response = $user_agent->request($request);
 
-    unless ($response->is_success) {
-        die "It failed";
+    unless ( $response->is_success ) {
+        my $message = $response->message || "No error messages";
+        die sprintf("%s request failed due to: %s", __PACKAGE__, $message);
     }
 
     my $content = $response->decoded_content;
