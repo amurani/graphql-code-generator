@@ -131,8 +131,7 @@ ${builders || ''}
 no Moose;
 ${attributes ? 'no Moose::Util::TypeConstraints;' : ''}
 
-1;
-  `;
+1;`;
   }
 
   private buildAttribute({ name, type, isList, isRequired, builder }: Record<string, string | boolean>) {
@@ -147,8 +146,7 @@ has '${name}' => (
     lazy => 1`
         : ''
     }
-);
-  `;
+);`;
   }
 
   buildPluginPackage = (content: string, packageName?: string) => {
@@ -163,18 +161,17 @@ ${content}
 no Moose::Util::TypeConstraints;
 no Moose;
 
-1;
-  `;
+1;`;
   };
 
   buildOperation(operationProps) {
     return `
 sub ${operationProps.operationName} {
     my ($self, ${operationProps.variables.map(prop => `$${prop.name}`).join(', ')}) = @_;
-    ${operationProps.variables
-      .filter(prop => prop.isRequired)
-      .map(prop => `die "Property '$${prop.name}' is required" unless ($${prop.name});`)
-      .join('\n')}
+${operationProps.variables
+  .filter(prop => prop.isRequired)
+  .map(prop => `die "Property '$${prop.name}' is required" unless ($${prop.name});`)
+  .join('\n')}
     return {
       query => qq[
 ${operationProps.query.replace(/\$/g, '\\$')}
@@ -224,7 +221,7 @@ ${basicTypes}
 package ${this.config.packageName}::Types::Roles;
 
 use Moose::Role;
- 
+
 sub as_hash {
     my $self = shift;
     my @attributes = $self->meta->get_all_attributes;
@@ -247,7 +244,7 @@ package ${this.config.packageName}::Client;
 
 use Moose;
 
-use LWP::UserAgent; 
+use LWP::UserAgent;
 use HTTP::Request ();
 use JSON::MaybeXS qw(encode_json decode_json);
 
@@ -277,7 +274,7 @@ sub BUILD {
 
 sub send {
     my ($self, $query) = @_;
-    
+
     my $headers = [
         'Content-Type' => 'application/json; charset=UTF-8',
         %{ $self->headers },
@@ -311,10 +308,10 @@ sub _parse_data {
         if ($class_type_maps->{$key}) {;
             $type = $class_type_maps->{$key};
         } else {
-            my $_class_type_map = $self->_retrieve_class_type_maps($parent_type); 
+            my $_class_type_map = $self->_retrieve_class_type_maps($parent_type);
             $type = $_class_type_map->{$key};
         }
-        
+
         if (ref($value) eq 'ARRAY') {
             ($type) = $type =~ /^ArrayRef\\[(.*)\\]$/g;
             my @values = map { $self->_resolve_value($type, $_) } @$value;
@@ -339,7 +336,7 @@ sub _parse_data {
                     }
                 }
             }
-            
+
             $parsed_data->{ $key } = $self->_resolve_value($type, \\%values);
         } else {
             $parsed_data->{ $key } = $self->_resolve_value($type, $value);
@@ -357,7 +354,7 @@ sub _resolve_value {
 
 sub _retrieve_class_type_maps {
     my ($self, $class) = @_;
-    
+
     return {} unless $class;
     return {} unless $class->can('meta');
 
@@ -373,8 +370,6 @@ sub _retrieve_class_type_maps {
 
 no Moose;
 
-1;
-
-`;
+1;`;
   }
 }
